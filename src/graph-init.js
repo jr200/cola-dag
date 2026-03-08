@@ -9,7 +9,7 @@ import { assignGroupColors } from "./styling.js";
 import SharedState from "./shared-state.js";
 import Renderer2D from "./renderer-2d.js";
 import Renderer3D from "./renderer-3d.js";
-import { initControls, initViewMode } from "./controls.js";
+import { initControls } from "./controls.js";
 
 // ---------------------------------------------------------------------------
 // Pure computation: spec → { spec, nodeRoles, nodeToGroup, dags }
@@ -100,7 +100,6 @@ export function applyNewDot(dotText, graphData, sharedState) {
 /* global __APP_VERSION__ */
 
 async function main() {
-  document.getElementById("app-version").textContent = "v" + __APP_VERSION__;
   var params = new URLSearchParams(window.location.search);
   var dataUrl = params.get("data") || "default.dot";
 
@@ -146,10 +145,11 @@ async function main() {
   Renderer3D.init(document.getElementById("view-3d"), graphData, SharedState);
 
   // -----------------------------------------------------------------------
-  // Initialise controls and view mode
+  // Initialise controls (toolbar, physics panel, legend, DAG selector,
+  // view mode switcher — all managed as components).
   // -----------------------------------------------------------------------
   initControls(graphData, SharedState);
-  initViewMode();
+  document.getElementById("app-version").textContent = "v" + __APP_VERSION__;
 
   // -----------------------------------------------------------------------
   // Live updates via SSE
