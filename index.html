@@ -9,7 +9,7 @@
 <body class="mode-split">
   <input type="file" id="dotFileInput" accept=".dot,.gv" style="display:none" />
   <div id="controls">
-    <button id="loadBtn">Load</button>
+    <button id="loadBtn" data-tooltip="Load a Graphviz DOT file (.dot, .gv)">Load</button>
     <span class="controls-sep"></span>
 
     <!-- View mode selector -->
@@ -34,11 +34,8 @@
     <span id="controls2d">
       <label>Direction:
         <select id="directionSelect">
-          <option value="none">Free</option>
           <option value="TB" selected>Top-Down</option>
           <option value="LR">Left-Right</option>
-          <option value="BT">Bottom-Up</option>
-          <option value="RL">Right-Left</option>
         </select>
       </label>
     </span>

@@ -1,4 +1,4 @@
-.PHONY: dev build preview clean test lint lint-fix release update install
+.PHONY: dev build preview clean test lint lint-fix bump release update install docker
 
 VERSION := $(shell node -p "require('./package.json').version")
 
@@ -23,11 +23,19 @@ lint:
 lint-fix:
 	npx eslint . --fix --ignore-pattern dist --ignore-pattern node_modules
 
+docker:
+	docker build -t cola-dag:local .
+
 clean:
 	rm -rf dist node_modules
 
 update:
 	npx npm-check-updates -u
+	npm install --package-lock-only
+
+bump:
+	@echo "Usage: make bump v=patch|minor|major"
+	npm version $(v) --no-git-tag-version
 	npm install --package-lock-only
 
 release:
