@@ -183,6 +183,72 @@ function setupMouseInteraction(domElement) {
     e.preventDefault();
   }, { passive: false });
 
+  // --- Touch support ---
+  var touchState = { active: 0, prevDist: 0 };
+
+  domElement.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    var touches = e.touches;
+    touchState.active = touches.length;
+    if (touches.length === 1) {
+      m.down = true;
+      m.x = touches[0].clientX;
+      m.y = touches[0].clientY;
+    } else if (touches.length === 2) {
+      m.down = false;
+      var dx = touches[1].clientX - touches[0].clientX;
+      var dy = touches[1].clientY - touches[0].clientY;
+      touchState.prevDist = Math.sqrt(dx * dx + dy * dy);
+      m.x = (touches[0].clientX + touches[1].clientX) / 2;
+      m.y = (touches[0].clientY + touches[1].clientY) / 2;
+    }
+  }, { passive: false });
+
+  domElement.addEventListener("touchmove", function (e) {
+    e.preventDefault();
+    var touches = e.touches;
+    if (touches.length === 1 && touchState.active === 1) {
+      // Single finger: rotate
+      var moveX = touches[0].clientX - m.x;
+      var moveY = touches[0].clientY - m.y;
+      m.x = touches[0].clientX;
+      m.y = touches[0].clientY;
+      m.dx = moveX;
+      m.dy = moveY;
+    } else if (touches.length === 2) {
+      // Pinch: zoom
+      var dx = touches[1].clientX - touches[0].clientX;
+      var dy = touches[1].clientY - touches[0].clientY;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      if (touchState.prevDist > 0) {
+        var zoomDelta = (touchState.prevDist - dist) * 1.5;
+        var oldZ = camera.position.z;
+        var newZ = Math.max(20, Math.min(800, oldZ + zoomDelta));
+        camera.position.z = newZ;
+      }
+      touchState.prevDist = dist;
+
+      // Two-finger drag: pan
+      var cx = (touches[0].clientX + touches[1].clientX) / 2;
+      var cy = (touches[0].clientY + touches[1].clientY) / 2;
+      m.panX += cx - m.x;
+      m.panY += cy - m.y;
+      m.x = cx;
+      m.y = cy;
+    }
+  }, { passive: false });
+
+  domElement.addEventListener("touchend", function (e) {
+    e.preventDefault();
+    touchState.active = e.touches.length;
+    if (e.touches.length === 0) {
+      m.down = false;
+    } else if (e.touches.length === 1) {
+      m.x = e.touches[0].clientX;
+      m.y = e.touches[0].clientY;
+    }
+  }, { passive: false });
+
   return m;
 }
 
@@ -601,6 +667,44 @@ function stop() {
 // -------------------------------------------------------------------------
 // Click-to-select (single click via raycasting)
 // -------------------------------------------------------------------------
+function handleSelectAt(clientX, clientY) {
+  var rect = threeRenderer.domElement.getBoundingClientRect();
+  mouseVec.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+  mouseVec.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouseVec, camera);
+
+  var intersects = raycaster.intersectObjects(currentNodeMeshes, false);
+  var ss = sharedState.get();
+  if (intersects.length > 0) {
+    var nodeData = intersects[0].object.userData.node;
+    var newSel = (ss.selectedNode === nodeData.name) ? null : nodeData.name;
+    sharedState.update({ selectedNode: newSel }, "3d");
+    applySelection(newSel);
+  } else {
+    if (ss.selectedNode !== null) {
+      sharedState.update({ selectedNode: null }, "3d");
+      applySelection(null);
+    }
+  }
+}
+
+function handleDblClickAt(clientX, clientY) {
+  var rect = threeRenderer.domElement.getBoundingClientRect();
+  mouseVec.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+  mouseVec.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouseVec, camera);
+
+  var intersects = raycaster.intersectObjects(currentNodeMeshes, false);
+  if (intersects.length > 0) {
+    var nodeData = intersects[0].object.userData.node;
+    var ss = sharedState.get();
+    var newCollapsed = deepCopy(ss.collapsed);
+    newCollapsed[nodeData.group] = !newCollapsed[nodeData.group];
+    sharedState.update({ collapsed: newCollapsed }, "3d");
+    render();
+  }
+}
+
 function setupClickSelection() {
   var clickStartTime = 0;
   var clickStartX = 0;
@@ -618,24 +722,46 @@ function setupClickSelection() {
     var dx = e.clientX - clickStartX;
     var dy = e.clientY - clickStartY;
     if (Math.abs(dx) > 3 || Math.abs(dy) > 3) return;
+    handleSelectAt(e.clientX, e.clientY);
+  });
 
-    var rect = threeRenderer.domElement.getBoundingClientRect();
-    mouseVec.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouseVec.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    raycaster.setFromCamera(mouseVec, camera);
+  // Touch tap & double-tap
+  var lastTapTime = 0;
+  var tapStartX = 0;
+  var tapStartY = 0;
+  var tapStartTime = 0;
+  var doubleTapTimeout = null;
 
-    var intersects = raycaster.intersectObjects(currentNodeMeshes, false);
-    var ss = sharedState.get();
-    if (intersects.length > 0) {
-      var nodeData = intersects[0].object.userData.node;
-      var newSel = (ss.selectedNode === nodeData.name) ? null : nodeData.name;
-      sharedState.update({ selectedNode: newSel }, "3d");
-      applySelection(newSel);
+  threeRenderer.domElement.addEventListener("touchstart", function (e) {
+    if (e.touches.length !== 1) return;
+    tapStartX = e.touches[0].clientX;
+    tapStartY = e.touches[0].clientY;
+    tapStartTime = Date.now();
+  });
+
+  threeRenderer.domElement.addEventListener("touchend", function (e) {
+    if (e.changedTouches.length !== 1 || e.touches.length !== 0) return;
+    var touch = e.changedTouches[0];
+    var elapsed = Date.now() - tapStartTime;
+    if (elapsed > 300) return;
+    var dx = touch.clientX - tapStartX;
+    var dy = touch.clientY - tapStartY;
+    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) return;
+
+    var now = Date.now();
+    if (now - lastTapTime < 350) {
+      // Double-tap
+      clearTimeout(doubleTapTimeout);
+      lastTapTime = 0;
+      handleDblClickAt(touch.clientX, touch.clientY);
     } else {
-      if (ss.selectedNode !== null) {
-        sharedState.update({ selectedNode: null }, "3d");
-        applySelection(null);
-      }
+      // Possible single tap — delay to rule out double-tap
+      lastTapTime = now;
+      var tx = touch.clientX;
+      var ty = touch.clientY;
+      doubleTapTimeout = setTimeout(function () {
+        handleSelectAt(tx, ty);
+      }, 350);
     }
   });
 }
@@ -645,20 +771,7 @@ function setupClickSelection() {
 // -------------------------------------------------------------------------
 function setupDblClick() {
   threeRenderer.domElement.addEventListener("dblclick", function (e) {
-    var rect = threeRenderer.domElement.getBoundingClientRect();
-    mouseVec.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouseVec.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    raycaster.setFromCamera(mouseVec, camera);
-
-    var intersects = raycaster.intersectObjects(currentNodeMeshes, false);
-    if (intersects.length > 0) {
-      var nodeData = intersects[0].object.userData.node;
-      var ss = sharedState.get();
-      var newCollapsed = deepCopy(ss.collapsed);
-      newCollapsed[nodeData.group] = !newCollapsed[nodeData.group];
-      sharedState.update({ collapsed: newCollapsed }, "3d");
-      render();
-    }
+    handleDblClickAt(e.clientX, e.clientY);
   });
 }
 

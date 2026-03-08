@@ -3,10 +3,11 @@
 
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>coladag</title>
 </head>
 
-<body class="mode-split">
+<body class="mode-3d">
   <input type="file" id="dotFileInput" accept=".dot,.gv" style="display:none" />
   <div id="controls">
     <button id="loadBtn" data-tooltip="Load a Graphviz DOT file (.dot, .gv)">Load</button>
@@ -15,8 +16,8 @@
     <!-- View mode selector -->
     <div id="viewModeGroup">
       <button class="view-mode-btn" data-mode="2d">2D</button>
-      <button class="view-mode-btn active" data-mode="split">Split</button>
-      <button class="view-mode-btn" data-mode="3d">3D</button>
+      <button class="view-mode-btn" data-mode="split">Split</button>
+      <button class="view-mode-btn active" data-mode="3d">3D</button>
     </div>
     <span class="controls-sep"></span>
 

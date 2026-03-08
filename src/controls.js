@@ -421,5 +421,5 @@ export function initViewMode() {
     }
   });
 
-  setMode("split");
+  setMode("3d");
 }

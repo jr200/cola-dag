@@ -10,12 +10,17 @@ body { font-family: Helvetica, Arial, sans-serif; background: #fafafa;
 
 /* --- Top toolbar --- */
 #controls { padding: 8px 16px; background: #fff; border-bottom: 1px solid #ddd;
-            display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-#controls label { font-size: 13px; color: #555; }
-#controls select, #controls input, #controls button { font-size: 13px; }
-#controls button { padding: 4px 12px; cursor: pointer; border: 1px solid #ccc;
-                   border-radius: 4px; background: #fff; }
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            touch-action: manipulation; }
+#controls label { font-size: 14px; color: #555; }
+#controls select, #controls input, #controls button { font-size: 14px; }
+#controls select { min-height: 44px; padding: 0 8px; border-radius: 6px; border: 1px solid #ccc;
+                   background: #fff; -webkit-appearance: none; appearance: none; }
+#controls button { min-height: 44px; min-width: 44px; padding: 8px 14px; cursor: pointer;
+                   border: 1px solid #ccc; border-radius: 6px; background: #fff;
+                   -webkit-tap-highlight-color: transparent; }
 #controls button:hover { background: #f0f0f0; }
+#controls button:active { background: #e0e0e0; }
 [data-tooltip] { position: relative; }
 [data-tooltip]:hover::after { content: attr(data-tooltip); position: absolute; top: 100%;
                               left: 50%; transform: translateX(-50%); margin-top: 6px;
@@ -23,7 +28,7 @@ body { font-family: Helvetica, Arial, sans-serif; background: #fafafa;
                               border-radius: 4px; white-space: nowrap; z-index: 20;
                               pointer-events: none; }
 
-.controls-sep { border-left: 1px solid #ddd; height: 24px; margin: 0 4px; }
+.controls-sep { border-left: 1px solid #ddd; height: 28px; margin: 0 2px; }
 
 /* --- Version badge --- */
 #app-version { margin-left: auto; font-size: 11px; color: #999; font-family: monospace;
@@ -31,9 +36,11 @@ body { font-family: Helvetica, Arial, sans-serif; background: #fafafa;
 
 /* --- View mode toggle --- */
 #viewModeGroup { display: flex; gap: 2px; }
-.view-mode-btn { padding: 4px 12px; cursor: pointer; border: 1px solid #ccc;
-                 border-radius: 4px; background: #fff; font-size: 13px; }
+.view-mode-btn { min-height: 44px; min-width: 44px; padding: 8px 14px; cursor: pointer;
+                 border: 1px solid #ccc; border-radius: 6px; background: #fff; font-size: 14px;
+                 -webkit-tap-highlight-color: transparent; }
 .view-mode-btn:hover { background: #f0f0f0; }
+.view-mode-btn:active { background: #e0e0e0; }
 .view-mode-btn.active { background: #e3f2fd; border-color: #90caf9; font-weight: bold; }
 
 /* --- View panels (split layout) --- */
@@ -41,7 +48,7 @@ body { font-family: Helvetica, Arial, sans-serif; background: #fafafa;
 .view-panel { min-height: 0; position: relative; overflow: hidden; }
 #view-2d { flex: 1 1 0; }
 #view-3d { flex: 1 1 0; }
-#view-3d canvas { display: block; }
+#view-3d canvas { display: block; touch-action: none; }
 
 /* --- Splitter handle --- */
 #splitter { width: 6px; cursor: col-resize; background: #e0e0e0; flex-shrink: 0;
@@ -88,9 +95,11 @@ body.splitter-dragging { user-select: none; -webkit-user-select: none; cursor: c
 #legend { position: absolute; bottom: 12px; right: 12px; background: #fff;
           border: 1px solid #ddd; border-radius: 6px; padding: 10px;
           font-size: 12px; max-height: 60vh; overflow-y: auto; z-index: 10; }
-.legend-item { display: flex; align-items: center; gap: 6px; margin: 2px 0;
-               cursor: pointer; }
+.legend-item { display: flex; align-items: center; gap: 8px; margin: 0;
+               cursor: pointer; min-height: 36px; padding: 4px 6px; border-radius: 4px;
+               -webkit-tap-highlight-color: transparent; }
 .legend-item:hover { background: #f5f5f5; }
+.legend-item:active { background: #e8e8e8; }
 .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
 .legend-sep { border-top: 1px solid #ddd; margin: 6px 0; }
 .legend-hint { display: flex; align-items: center; gap: 6px; margin: 2px 0;
@@ -106,9 +115,11 @@ body.splitter-dragging { user-select: none; -webkit-user-select: none; cursor: c
               font-size: 12px; z-index: 10; }
 .dag-title { font-weight: bold; margin-bottom: 4px; color: #555; font-size: 11px;
              text-transform: uppercase; letter-spacing: 0.5px; }
-.dag-item { display: flex; align-items: center; gap: 6px; margin: 2px 0;
-            cursor: pointer; padding: 3px 6px; border-radius: 3px; }
+.dag-item { display: flex; align-items: center; gap: 8px; margin: 0;
+            cursor: pointer; padding: 4px 6px; border-radius: 4px; min-height: 36px;
+            -webkit-tap-highlight-color: transparent; }
 .dag-item:hover { background: #f0f0f0; }
+.dag-item:active { background: #e0e0e0; }
 .dag-item.selected { background: #e3f2fd; }
 .dag-item.selected span:first-of-type { font-weight: bold; }
 .dag-count { color: #999; font-size: 11px; }
