@@ -198,7 +198,7 @@ export default function graphApiPlugin() {
     "</head><body>",
     "<rapi-doc spec-url=\"/api/docs/openapi.json\"",
     "  theme=\"dark\" render-style=\"read\" show-header=\"false\"",
-    "  allow-try=\"true\" schema-style=\"table\"></rapi-doc>",
+    "  allow-try=\"true\" schema-style=\"table\" use-path-in-nav-bar=\"true\"></rapi-doc>",
     "</body></html>",
   ].join("\n");
 

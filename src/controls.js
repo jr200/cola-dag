@@ -63,8 +63,10 @@ export function initControls(graphData, sharedState) {
   components.push(physicsPanel);
 
   // --- Version badge ---
-  var version = document.createElement("span");
+  var version = document.createElement("a");
   version.id = "app-version";
+  version.href = "/api/docs";
+  version.target = "_blank";
   toolbar.appendChild(version);
 
   // --- Legend (bottom-right overlay) ---

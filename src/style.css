@@ -32,7 +32,8 @@ body { font-family: Helvetica, Arial, sans-serif; background: #fafafa;
 
 /* --- Version badge --- */
 #app-version { margin-left: auto; font-size: 11px; color: #999; font-family: monospace;
-               white-space: nowrap; }
+               white-space: nowrap; text-decoration: none; }
+#app-version:hover { color: #1976d2; }
 
 /* --- View mode toggle --- */
 #viewModeGroup { display: flex; gap: 2px; }
