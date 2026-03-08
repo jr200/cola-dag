@@ -1,9 +1,11 @@
 // Vite plugin: graph API endpoints with SSE broadcast.
 //   GET  /api/graph-events   — SSE stream for live graph & color updates
-//   POST /update-graph       — push new DOT text, broadcast to SSE clients
+//   POST /api/graph-dot      — push new DOT text, broadcast to SSE clients
 //   GET  /api/graph-dot      — export current DAG as DOT (?styled=true for colours)
 //   GET  /api/graph-colors   — current colour state as JSON [{node, color}]
 //   POST /api/graph-colors   — apply partial colour updates, broadcast via SSE
+//   GET  /api/docs           — interactive API docs (RapiDoc)
+//   GET  /api/docs/openapi.json — OpenAPI 3.0 spec
 
 import fs from "node:fs";
 import path from "node:path";
@@ -186,6 +188,21 @@ export default function graphApiPlugin() {
   }
 
   // -----------------------------------------------------------------------
+  // API docs (RapiDoc via CDN — zero dependencies)
+  // -----------------------------------------------------------------------
+  var docsHtml = [
+    "<!doctype html><html><head>",
+    "<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">",
+    "<title>Cola-DAG API Docs</title>",
+    "<script type=\"module\" src=\"https://unpkg.com/rapidoc/dist/rapidoc-min.js\"></script>",
+    "</head><body>",
+    "<rapi-doc spec-url=\"/api/docs/openapi.json\"",
+    "  theme=\"dark\" render-style=\"read\" show-header=\"false\"",
+    "  allow-try=\"true\" schema-style=\"table\"></rapi-doc>",
+    "</body></html>",
+  ].join("\n");
+
+  // -----------------------------------------------------------------------
   // Plugin definition
   // -----------------------------------------------------------------------
   return {
@@ -194,6 +211,22 @@ export default function graphApiPlugin() {
       projectRoot = server.config.root || ".";
 
       server.middlewares.use(function (req, res, next) {
+        var parsedUrl = new URL(req.url, "http://localhost");
+
+        // --- API docs ---
+        if (req.method === "GET" && req.url === "/api/docs") {
+          res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+          res.end(docsHtml);
+          return;
+        }
+        if (req.method === "GET" && req.url === "/api/docs/openapi.json") {
+          var specPath = path.join(projectRoot, "openapi.json");
+          var specText = fs.readFileSync(specPath, "utf-8");
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(specText);
+          return;
+        }
+
         // --- SSE stream ---
         if (req.method === "GET" && req.url === "/api/graph-events") {
           res.writeHead(200, {
@@ -208,7 +241,7 @@ export default function graphApiPlugin() {
         }
 
         // --- Push new DOT graph ---
-        if (req.method === "POST" && req.url === "/update-graph") {
+        if (req.method === "POST" && parsedUrl.pathname === "/api/graph-dot") {
           var body = "";
           req.on("data", function (chunk) { body += chunk; });
           req.on("end", function () {
@@ -226,11 +259,20 @@ export default function graphApiPlugin() {
           return;
         }
 
-        var parsedUrl = new URL(req.url, "http://localhost");
-
-        // --- Export DAG as DOT ---
+        // --- Export DAG as DOT (optionally load from base64 ?dot= param) ---
         if (req.method === "GET" && parsedUrl.pathname === "/api/graph-dot") {
-          if (!ensureState()) {
+          var dotParam = parsedUrl.searchParams.get("dot");
+          if (dotParam) {
+            var dotText;
+            try { dotText = Buffer.from(dotParam, "base64").toString("utf-8"); } catch (_e) {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: "invalid base64" }));
+              return;
+            }
+            try { initializeState(dotText); } catch (_e) { /* parse may fail */ }
+            var payload = "data: " + JSON.stringify(dotText) + "\n\n";
+            clients.forEach(function (client) { client.write(payload); });
+          } else if (!ensureState()) {
             res.writeHead(500, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: "no graph loaded" }));
             return;

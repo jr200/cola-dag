@@ -12,7 +12,7 @@ export function createFileLoader(graphData, sharedState) {
   fileInput.style.display = "none";
 
   var btn = document.createElement("button");
-  btn.textContent = "Load";
+  btn.textContent = "Load File";
   btn.dataset.tooltip = "Load a Graphviz DOT file (.dot, .gv)";
 
   function onBtnClick() { fileInput.click(); }

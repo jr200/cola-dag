@@ -101,28 +101,53 @@ export function applyNewDot(dotText, graphData, sharedState) {
 
 async function main() {
   var params = new URLSearchParams(window.location.search);
-  var dataUrl = params.get("data") || "default.dot";
-
-  var response;
-  try {
-    response = await fetch(dataUrl);
-  } catch (err) {
-    showError("Failed to fetch " + dataUrl + ": " + err.message);
-    return;
-  }
-  if (!response.ok) {
-    showError("Failed to load " + dataUrl + ": " + response.statusText);
-    return;
-  }
+  var dotParam = params.get("dot");
 
   var spec;
-  try {
-    var dotText = await response.text();
-    spec = parseDot(dotText);
-  } catch (err) {
-    showError("Failed to parse " + dataUrl + ": " + err.message);
-    return;
+  var dotText;
+
+  if (dotParam) {
+    // Load graph from base64-encoded ?dot= query parameter (shared URL)
+    try {
+      dotText = new TextDecoder().decode(Uint8Array.from(atob(dotParam), function (c) { return c.charCodeAt(0); }));
+      spec = parseDot(dotText);
+    } catch (err) {
+      showError("Failed to parse shared graph: " + err.message);
+      return;
+    }
+    // Clean up the URL bar — the graph is now loaded, no need for the long param
+    params.delete("dot");
+    var cleanUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "");
+    history.replaceState(null, "", cleanUrl);
+  } else {
+    // Load graph from file URL
+    var dataUrl = params.get("data") || "default.dot";
+    var response;
+    try {
+      response = await fetch(dataUrl);
+    } catch (err) {
+      showError("Failed to fetch " + dataUrl + ": " + err.message);
+      return;
+    }
+    if (!response.ok) {
+      showError("Failed to load " + dataUrl + ": " + response.statusText);
+      return;
+    }
+    try {
+      dotText = await response.text();
+      spec = parseDot(dotText);
+    } catch (err) {
+      showError("Failed to parse " + dataUrl + ": " + err.message);
+      return;
+    }
   }
+
+  // Sync server-side state so /api/graph-dot reflects what the client loaded
+  fetch("/api/graph-dot", {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: dotText,
+  }).catch(function () { /* dev server may not be running */ });
 
   if (spec.meta && spec.meta.title) {
     document.title = spec.meta.title;

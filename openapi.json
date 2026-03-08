@@ -1,0 +1,209 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Cola-DAG Graph API",
+    "version": "1.0.0",
+    "description": "Live DAG graph management with SSE broadcast."
+  },
+  "paths": {
+    "/api/graph-events": {
+      "get": {
+        "summary": "SSE event stream",
+        "description": "Server-Sent Events stream for live graph and colour updates.",
+        "responses": {
+          "200": {
+            "description": "SSE stream opened",
+            "content": {
+              "text/event-stream": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/graph-dot": {
+      "get": {
+        "summary": "Export DAG as DOT",
+        "description": "Returns the current graph as DOT text. If a base64-encoded `dot` query parameter is provided, loads that graph first (and broadcasts to SSE clients).",
+        "parameters": [
+          {
+            "name": "dot",
+            "in": "query",
+            "schema": { "type": "string", "format": "byte" },
+            "description": "Base64-encoded DOT text to load before returning"
+          },
+          {
+            "name": "styled",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["true", "false"] },
+            "description": "Include colour styling in DOT output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DOT text",
+            "content": {
+              "text/plain": {
+                "schema": { "type": "string" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid base64",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "No graph loaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Push new DOT graph",
+        "description": "Replace the current DAG with new DOT text and broadcast to all SSE clients.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": { "type": "string" },
+              "example": "digraph { a -> b; b -> c; }"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Graph updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "ok": { "type": "boolean" } }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/graph-colors": {
+      "get": {
+        "summary": "Get colour state",
+        "description": "Returns current colour assignments as an array of {node, color} entries.",
+        "responses": {
+          "200": {
+            "description": "Colour state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "node": { "type": "string" },
+                      "color": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "No graph loaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Update colours",
+        "description": "Apply partial colour updates and broadcast changes via SSE.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "node": { "type": "string" },
+                    "color": { "type": "string" }
+                  },
+                  "required": ["node", "color"]
+                }
+              },
+              "example": [{ "node": "my-node", "color": "#ff0000" }]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Colours updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "ok": { "type": "boolean" } }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or not an array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "No graph loaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

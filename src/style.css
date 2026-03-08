@@ -146,6 +146,31 @@ body.splitter-dragging { user-select: none; -webkit-user-select: none; cursor: c
   .dag-title { display: none; }
 }
 
+/* --- DOT editor panel --- */
+.dot-editor-panel { padding: 8px 16px; background: #fff; border-bottom: 1px solid #ddd; }
+.dot-editor-textarea { width: 100%; height: 200px; font-family: monospace; font-size: 13px;
+                       border: 1px solid #ccc; border-radius: 6px; padding: 8px;
+                       resize: vertical; tab-size: 2; }
+.dot-editor-actions { display: flex; gap: 8px; margin-top: 6px; }
+.dot-editor-actions button { font-size: 14px; min-height: 36px; padding: 6px 14px;
+                             cursor: pointer; border: 1px solid #ccc; border-radius: 6px;
+                             background: #fff; }
+.dot-editor-actions button:hover { background: #f0f0f0; }
+.dot-editor-actions button:active { background: #e0e0e0; }
+#controls button.active { background: #e3f2fd; border-color: #90caf9; }
+
+/* --- Share panel --- */
+.share-panel { padding: 8px 16px; background: #fff; border-bottom: 1px solid #ddd; }
+.share-url-input { width: 100%; font-family: monospace; font-size: 13px;
+                   border: 1px solid #ccc; border-radius: 6px; padding: 8px;
+                   background: #f9f9f9; }
+.share-actions { display: flex; gap: 8px; margin-top: 6px; }
+.share-actions button { font-size: 14px; min-height: 36px; padding: 6px 14px;
+                        cursor: pointer; border: 1px solid #ccc; border-radius: 6px;
+                        background: #fff; }
+.share-actions button:hover { background: #f0f0f0; }
+.share-actions button:active { background: #e0e0e0; }
+
 /* --- Error --- */
 #error { padding: 40px; text-align: center; color: #c00; font-size: 16px; display: none; }
 

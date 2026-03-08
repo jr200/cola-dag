@@ -6,6 +6,8 @@
 import Renderer2D from "./renderer-2d.js";
 import Renderer3D from "./renderer-3d.js";
 import { createFileLoader } from "./components/file-loader.js";
+import { createDotEditor } from "./components/dot-editor.js";
+import { createSharePanel } from "./components/share-panel.js";
 import { createViewMode } from "./components/view-mode.js";
 import { createGraphActions } from "./components/graph-actions.js";
 import { createPhysicsPanel } from "./components/physics-panel.js";
@@ -26,6 +28,16 @@ export function initControls(graphData, sharedState) {
   var fileLoader = createFileLoader(graphData, sharedState);
   toolbar.appendChild(fileLoader.el);
   components.push(fileLoader);
+
+  // --- DOT editor ---
+  var dotEditor = createDotEditor(graphData, sharedState);
+  toolbar.appendChild(dotEditor.el);
+  components.push(dotEditor);
+
+  // --- Share ---
+  var sharePanel = createSharePanel();
+  toolbar.appendChild(sharePanel.el);
+  components.push(sharePanel);
   toolbar.appendChild(createSep());
 
   // --- View mode (2D / Split / 3D + splitter) ---
@@ -46,6 +58,8 @@ export function initControls(graphData, sharedState) {
   var physicsPanel = createPhysicsPanel(Renderer2D, Renderer3D);
   toolbar.appendChild(physicsPanel.toggleEl);
   toolbar.insertAdjacentElement("afterend", physicsPanel.panelEl);
+  physicsPanel.panelEl.insertAdjacentElement("afterend", dotEditor.panelEl);
+  dotEditor.panelEl.insertAdjacentElement("afterend", sharePanel.panelEl);
   components.push(physicsPanel);
 
   // --- Version badge ---

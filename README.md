@@ -107,8 +107,8 @@ The Vite plugin (and production server) expose the following endpoints:
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/graph-events` | SSE stream for live graph & colour updates |
-| POST | `/update-graph` | Push new DOT text, broadcast to SSE clients |
 | GET | `/api/graph-dot` | Export current DAG as DOT (`?styled=true` for colours) |
+| POST | `/api/graph-dot` | Push new DOT text, broadcast to SSE clients |
 | GET | `/api/graph-colors` | Current colour state as JSON |
 | POST | `/api/graph-colors` | Apply partial colour updates, broadcast via SSE |
 
