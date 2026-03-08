@@ -95,6 +95,8 @@ body.splitter-dragging { user-select: none; -webkit-user-select: none; cursor: c
 #legend { position: absolute; bottom: 12px; right: 12px; background: #fff;
           border: 1px solid #ddd; border-radius: 6px; padding: 10px;
           font-size: 12px; max-height: 60vh; overflow-y: auto; z-index: 10; }
+.legend-toggle { display: none; }
+.legend-body { }
 .legend-item { display: flex; align-items: center; gap: 8px; margin: 0;
                cursor: pointer; min-height: 36px; padding: 4px 6px; border-radius: 4px;
                -webkit-tap-highlight-color: transparent; }
@@ -113,6 +115,8 @@ body.splitter-dragging { user-select: none; -webkit-user-select: none; cursor: c
 #dagSelector { position: absolute; bottom: 12px; left: 12px; background: #fff;
               border: 1px solid #ddd; border-radius: 6px; padding: 10px;
               font-size: 12px; z-index: 10; }
+.dag-toggle { display: none; }
+.dag-body { }
 .dag-title { font-weight: bold; margin-bottom: 4px; color: #555; font-size: 11px;
              text-transform: uppercase; letter-spacing: 0.5px; }
 .dag-item { display: flex; align-items: center; gap: 8px; margin: 0;
@@ -123,6 +127,24 @@ body.splitter-dragging { user-select: none; -webkit-user-select: none; cursor: c
 .dag-item.selected { background: #e3f2fd; }
 .dag-item.selected span:first-of-type { font-weight: bold; }
 .dag-count { color: #999; font-size: 11px; }
+
+/* --- Mobile: collapsible legend & DAG selector --- */
+@media (max-width: 768px), (pointer: coarse) {
+  #legend, #dagSelector { max-height: 40vh; max-width: 55vw; }
+  .legend-toggle, .dag-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    min-height: 36px; cursor: pointer; font-size: 11px; font-weight: bold;
+    color: #555; text-transform: uppercase; letter-spacing: 0.5px;
+    -webkit-tap-highlight-color: transparent; border: none; background: none;
+    width: 100%; padding: 0; }
+  .legend-toggle::after, .dag-toggle::after { content: "\25B4"; font-size: 10px; }
+  #legend.collapsed .legend-toggle::after,
+  #dagSelector.collapsed .dag-toggle::after { content: "\25BE"; }
+  #legend.collapsed .legend-body,
+  #dagSelector.collapsed .dag-body { display: none; }
+  #legend.collapsed, #dagSelector.collapsed { max-width: none; }
+  .dag-title { display: none; }
+}
 
 /* --- Error --- */
 #error { padding: 40px; text-align: center; color: #c00; font-size: 16px; display: none; }

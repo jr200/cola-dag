@@ -199,7 +199,20 @@ function addCheckbox(panel, labelText, checked, onChange) {
 // ---------------------------------------------------------------------------
 function buildLegend(graphData, sharedState) {
   var el = document.getElementById("legend");
+  var wasCollapsed = el.classList.contains("collapsed");
   el.innerHTML = "";
+
+  // Toggle button (visible on touch / small screens via CSS)
+  var toggle = document.createElement("button");
+  toggle.className = "legend-toggle";
+  toggle.textContent = "Legend";
+  toggle.addEventListener("click", function () {
+    el.classList.toggle("collapsed");
+  });
+  el.appendChild(toggle);
+
+  var body = document.createElement("div");
+  body.className = "legend-body";
 
   var ss = sharedState.get();
   var dagNodeSet = graphData.dags.length > 0
@@ -237,12 +250,12 @@ function buildLegend(graphData, sharedState) {
       newCollapsed[g] = !newCollapsed[g];
       sharedState.update({ collapsed: newCollapsed }, "controls");
     });
-    el.appendChild(item);
+    body.appendChild(item);
   });
 
   var sep = document.createElement("div");
   sep.className = "legend-sep";
-  el.appendChild(sep);
+  body.appendChild(sep);
 
   var rootHint = document.createElement("div");
   rootHint.className = "legend-hint";
@@ -250,7 +263,7 @@ function buildLegend(graphData, sharedState) {
   rootSwatch.className = "legend-swatch legend-swatch-root";
   rootHint.appendChild(rootSwatch);
   rootHint.appendChild(document.createTextNode(" Root group"));
-  el.appendChild(rootHint);
+  body.appendChild(rootHint);
 
   var leafHint = document.createElement("div");
   leafHint.className = "legend-hint";
@@ -258,24 +271,33 @@ function buildLegend(graphData, sharedState) {
   leafSwatch.className = "legend-swatch legend-swatch-leaf";
   leafHint.appendChild(leafSwatch);
   leafHint.appendChild(document.createTextNode(" Leaf group"));
-  el.appendChild(leafHint);
+  body.appendChild(leafHint);
 
   var dblHint = document.createElement("div");
   dblHint.className = "legend-hint";
   dblHint.textContent = "Double-click to expand/collapse";
-  el.appendChild(dblHint);
+  body.appendChild(dblHint);
 
   var clickHint = document.createElement("div");
   clickHint.className = "legend-hint";
   clickHint.textContent = "Click to select";
-  el.appendChild(clickHint);
+  body.appendChild(clickHint);
+
+  el.appendChild(body);
+  if (wasCollapsed || (_legendFirstBuild && _isTouchDevice)) el.classList.add("collapsed");
+  _legendFirstBuild = false;
 }
+
+var _legendFirstBuild = true;
+var _dagFirstBuild = true;
+var _isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
 // ---------------------------------------------------------------------------
 // DAG selector (single, shared)
 // ---------------------------------------------------------------------------
 function buildDagSelector(graphData, sharedState) {
   var el = document.getElementById("dagSelector");
+  var wasCollapsed = el.classList.contains("collapsed");
   el.innerHTML = "";
 
   if (graphData.dags.length <= 1) {
@@ -286,10 +308,22 @@ function buildDagSelector(graphData, sharedState) {
 
   var ss = sharedState.get();
 
+  // Toggle button (visible on touch / small screens via CSS)
+  var toggle = document.createElement("button");
+  toggle.className = "dag-toggle";
+  toggle.textContent = "DAG roots";
+  toggle.addEventListener("click", function () {
+    el.classList.toggle("collapsed");
+  });
+  el.appendChild(toggle);
+
+  var body = document.createElement("div");
+  body.className = "dag-body";
+
   var title = document.createElement("div");
   title.className = "dag-title";
   title.textContent = "DAG roots";
-  el.appendChild(title);
+  body.appendChild(title);
 
   graphData.dags.forEach(function (dag, i) {
     var item = document.createElement("div");
@@ -319,8 +353,12 @@ function buildDagSelector(graphData, sharedState) {
       sharedState.update({ selectedDagIndex: i }, "controls");
     });
 
-    el.appendChild(item);
+    body.appendChild(item);
   });
+
+  el.appendChild(body);
+  if (wasCollapsed || (_dagFirstBuild && _isTouchDevice)) el.classList.add("collapsed");
+  _dagFirstBuild = false;
 }
 
 // ---------------------------------------------------------------------------
