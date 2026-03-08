@@ -1,0 +1,26 @@
+{
+  "name": "cola-dag",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern node_modules",
+    "lint:fix": "eslint . --fix --ignore-pattern dist --ignore-pattern node_modules"
+  },
+  "dependencies": {
+    "@dagrejs/graphlib-dot": "^1.0.2",
+    "d3": "^7.9.0",
+    "three": "0.183.2",
+    "webcola": "^3.4.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
+  }
+}

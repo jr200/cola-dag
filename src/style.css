@@ -1,0 +1,135 @@
+/* ================================================================
+   Combined 2D/3D viewer styles.
+   Merged from webcola/style.css + webcola3d/style.css with
+   split-view layout and selection highlight additions.
+   ================================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Helvetica, Arial, sans-serif; background: #fafafa;
+       display: flex; flex-direction: column; height: 100vh; }
+
+/* --- Top toolbar --- */
+#controls { padding: 8px 16px; background: #fff; border-bottom: 1px solid #ddd;
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+#controls label { font-size: 13px; color: #555; }
+#controls select, #controls input, #controls button { font-size: 13px; }
+#controls button { padding: 4px 12px; cursor: pointer; border: 1px solid #ccc;
+                   border-radius: 4px; background: #fff; }
+#controls button:hover { background: #f0f0f0; }
+
+.controls-sep { border-left: 1px solid #ddd; height: 24px; margin: 0 4px; }
+
+/* --- Version badge --- */
+#app-version { margin-left: auto; font-size: 11px; color: #999; font-family: monospace;
+               white-space: nowrap; }
+
+/* --- View mode toggle --- */
+#viewModeGroup { display: flex; gap: 2px; }
+.view-mode-btn { padding: 4px 12px; cursor: pointer; border: 1px solid #ccc;
+                 border-radius: 4px; background: #fff; font-size: 13px; }
+.view-mode-btn:hover { background: #f0f0f0; }
+.view-mode-btn.active { background: #e3f2fd; border-color: #90caf9; font-weight: bold; }
+
+/* --- View panels (split layout) --- */
+#viewer-container { display: flex; flex: 1; min-height: 0; position: relative; }
+.view-panel { min-height: 0; position: relative; overflow: hidden; }
+#view-2d { flex: 1 1 0; }
+#view-3d { flex: 1 1 0; }
+#view-3d canvas { display: block; }
+
+/* --- Splitter handle --- */
+#splitter { width: 6px; cursor: col-resize; background: #e0e0e0; flex-shrink: 0;
+            position: relative; z-index: 5; transition: background 0.15s; }
+#splitter:hover, #splitter.dragging { background: #90caf9; }
+#splitter::after { content: ""; position: absolute; top: 50%; left: 50%;
+                   transform: translate(-50%, -50%);
+                   width: 2px; height: 32px; border-radius: 1px;
+                   background: #999; pointer-events: none; }
+#splitter:hover::after, #splitter.dragging::after { background: #1976d2; }
+
+/* --- View mode: 2D only --- */
+body.mode-2d #view-3d { display: none; }
+body.mode-2d #splitter { display: none; }
+body.mode-2d #controls3d { display: none; }
+body.mode-2d #physicsPanel3D { display: none; }
+body.mode-2d .physics-sep { display: none; }
+
+/* --- View mode: 3D only --- */
+body.mode-3d #view-2d { display: none; }
+body.mode-3d #splitter { display: none; }
+body.mode-3d #controls2d { display: none; }
+body.mode-3d #physicsPanel2D { display: none; }
+body.mode-3d .physics-sep { display: none; }
+
+/* When splitter is being dragged, prevent text selection globally */
+body.splitter-dragging { user-select: none; -webkit-user-select: none; cursor: col-resize !important; }
+
+/* --- Physics panel --- */
+#physicsPanel { display: none; padding: 8px 16px; background: #fff;
+                border-bottom: 1px solid #ddd; }
+#physicsPanel.open { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; }
+.physics-section { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; }
+.physics-section-title { font-size: 11px; font-weight: bold; color: #999;
+                         text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px; }
+.physics-sep { border-left: 1px solid #ddd; height: 24px; margin: 0 8px; }
+.physics-row { display: flex; align-items: center; gap: 6px; }
+.physics-row label { font-size: 12px; color: #555; white-space: nowrap; min-width: 110px; }
+.physics-row input[type=range] { width: 120px; }
+.physics-row .val { font-size: 12px; color: #333; min-width: 48px; text-align: right;
+                    font-family: monospace; }
+
+/* --- Legend (bottom-right) --- */
+#legend { position: absolute; bottom: 12px; right: 12px; background: #fff;
+          border: 1px solid #ddd; border-radius: 6px; padding: 10px;
+          font-size: 12px; max-height: 60vh; overflow-y: auto; z-index: 10; }
+.legend-item { display: flex; align-items: center; gap: 6px; margin: 2px 0;
+               cursor: pointer; }
+.legend-item:hover { background: #f5f5f5; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.legend-sep { border-top: 1px solid #ddd; margin: 6px 0; }
+.legend-hint { display: flex; align-items: center; gap: 6px; margin: 2px 0;
+               font-size: 11px; color: #777; }
+.legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
+                 background: #e0e0e0; }
+.legend-swatch-root { border: 1.5px solid #555; outline: 1.5px solid #555; outline-offset: 2px; }
+.legend-swatch-leaf { border: 2px dashed #999; }
+
+/* --- DAG selector (bottom-left) --- */
+#dagSelector { position: absolute; bottom: 12px; left: 12px; background: #fff;
+              border: 1px solid #ddd; border-radius: 6px; padding: 10px;
+              font-size: 12px; z-index: 10; }
+.dag-title { font-weight: bold; margin-bottom: 4px; color: #555; font-size: 11px;
+             text-transform: uppercase; letter-spacing: 0.5px; }
+.dag-item { display: flex; align-items: center; gap: 6px; margin: 2px 0;
+            cursor: pointer; padding: 3px 6px; border-radius: 3px; }
+.dag-item:hover { background: #f0f0f0; }
+.dag-item.selected { background: #e3f2fd; }
+.dag-item.selected span:first-of-type { font-weight: bold; }
+.dag-count { color: #999; font-size: 11px; }
+
+/* --- Error --- */
+#error { padding: 40px; text-align: center; color: #c00; font-size: 16px; display: none; }
+
+/* --- SVG (2D renderer) --- */
+svg .group-rect { stroke-width: 0; rx: 8; ry: 8; cursor: pointer; }
+svg .group-rect.role-root { stroke-width: 3; }
+svg .group-rect.role-leaf { stroke-width: 2; stroke-dasharray: 6 3; }
+svg .node-rect { rx: 5; ry: 5; stroke-width: 1; cursor: grab; }
+svg .node-rect.role-root { stroke-width: 3; }
+svg .node-rect.role-leaf { stroke-width: 2; stroke-dasharray: 5 3; }
+svg .node-label { font-family: monospace; font-size: 11px; fill: #343434;
+                  pointer-events: none; text-anchor: middle;
+                  dominant-baseline: central; }
+svg .node-label.role-root { font-size: 13px; font-weight: bold; }
+svg .node-label.role-leaf { font-size: 10px; fill: #666; }
+svg .group-label { font-family: Helvetica, sans-serif; font-size: 12px;
+                   font-weight: bold; pointer-events: none;
+                   text-anchor: middle; dominant-baseline: hanging; }
+svg .link { fill: none; stroke-width: 1.5; marker-end: url(#arrowhead); }
+
+/* --- Node selection highlight (2D) --- */
+svg .node-g.node-selected .node-rect {
+  stroke-width: 3;
+  stroke: #1976d2 !important;
+  filter: drop-shadow(0 0 4px rgba(25, 118, 210, 0.5));
+}

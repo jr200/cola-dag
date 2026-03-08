@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>coladag</title>
+</head>
+
+<body class="mode-split">
+  <input type="file" id="dotFileInput" accept=".dot,.gv" style="display:none" />
+  <div id="controls">
+    <button id="loadBtn">Load</button>
+    <span class="controls-sep"></span>
+
+    <!-- View mode selector -->
+    <div id="viewModeGroup">
+      <button class="view-mode-btn" data-mode="2d">2D</button>
+      <button class="view-mode-btn active" data-mode="split">Split</button>
+      <button class="view-mode-btn" data-mode="3d">3D</button>
+    </div>
+    <span class="controls-sep"></span>
+
+    <!-- Shared controls -->
+    <button id="clusterBtn">Cluster all</button>
+    <button id="expandBtn">Expand all</button>
+    <button id="recolorBtn">Recolor</button>
+    <button id="edgeColorBtn" title="Toggle edge colour between target and source node">Edges: source</button>
+    <button id="relayoutBtn">Re-layout</button>
+    <button id="resetBtn">Reset</button>
+
+    <span class="controls-sep"></span>
+
+    <!-- 2D-specific -->
+    <span id="controls2d">
+      <label>Direction:
+        <select id="directionSelect">
+          <option value="none">Free</option>
+          <option value="TB" selected>Top-Down</option>
+          <option value="LR">Left-Right</option>
+          <option value="BT">Bottom-Up</option>
+          <option value="RL">Right-Left</option>
+        </select>
+      </label>
+    </span>
+
+    <!-- 3D-specific -->
+    <span id="controls3d">
+      <button id="recenterBtn">Recenter</button>
+    </span>
+
+    <span class="controls-sep"></span>
+    <button id="physicsToggle">Layout &#x25b8;</button>
+    <span id="app-version"></span>
+  </div>
+
+  <div id="physicsPanel">
+    <div id="physicsPanel2D" class="physics-section"></div>
+    <span class="physics-sep"></span>
+    <div id="physicsPanel3D" class="physics-section"></div>
+  </div>
+
+  <div id="error"></div>
+
+  <div id="viewer-container">
+    <div id="view-2d" class="view-panel"></div>
+    <div id="splitter"></div>
+    <div id="view-3d" class="view-panel"></div>
+  </div>
+
+  <div id="dagSelector"></div>
+  <div id="legend"></div>
+
+  <script type="module" src="/src/graph-init.js"></script>
+</body>
+
+</html>
