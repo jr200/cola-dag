@@ -4,6 +4,8 @@
 // Returns { el, panelEl, destroy }.
 // ---------------------------------------------------------------------------
 
+import { compressDot } from "../url-codec.js";
+
 export function createSharePanel(sharedState) {
   var btn = document.createElement("button");
   btn.textContent = "Share";
@@ -37,9 +39,8 @@ export function createSharePanel(sharedState) {
   function buildUrl() {
     fetch("/api/graph-dot")
       .then(function (res) { return res.text(); })
-      .then(function (dotText) {
-        var bytes = new TextEncoder().encode(dotText);
-        var encoded = btoa(String.fromCharCode.apply(null, bytes));
+      .then(function (dotText) { return compressDot(dotText); })
+      .then(function (encoded) {
         var base = window.location.origin + window.location.pathname;
         var params = new URLSearchParams(window.location.search);
         params.set("dot", encoded);

@@ -6,6 +6,7 @@
 import "./style.css";
 import { parseDot } from "./dot-parser.js";
 import { assignGroupColors } from "./styling.js";
+import { decompressDot } from "./url-codec.js";
 import SharedState from "./shared-state.js";
 import Renderer2D from "./renderer-2d.js";
 import Renderer3D from "./renderer-3d.js";
@@ -108,9 +109,9 @@ async function main() {
   var dotText;
 
   if (dotParam) {
-    // Load graph from base64-encoded ?dot= query parameter (shared URL)
+    // Load graph from compressed/base64-encoded ?dot= query parameter (shared URL)
     try {
-      dotText = new TextDecoder().decode(Uint8Array.from(atob(dotParam), function (c) { return c.charCodeAt(0); }));
+      dotText = await decompressDot(dotParam);
       spec = parseDot(dotText);
     } catch (err) {
       showError("Failed to parse shared graph: " + err.message);
