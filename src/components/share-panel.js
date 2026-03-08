@@ -4,7 +4,7 @@
 // Returns { el, panelEl, destroy }.
 // ---------------------------------------------------------------------------
 
-export function createSharePanel() {
+export function createSharePanel(sharedState) {
   var btn = document.createElement("button");
   btn.textContent = "Share";
   btn.dataset.tooltip = "Generate a shareable URL for the current graph";
@@ -43,6 +43,12 @@ export function createSharePanel() {
         var base = window.location.origin + window.location.pathname;
         var params = new URLSearchParams(window.location.search);
         params.set("dot", encoded);
+        var dagIndex = sharedState.get().selectedDagIndex;
+        if (dagIndex > 0) {
+          params.set("root", dagIndex);
+        } else {
+          params.delete("root");
+        }
         urlInput.value = base + "?" + params.toString();
         urlInput.select();
       })

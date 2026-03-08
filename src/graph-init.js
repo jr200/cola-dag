@@ -102,6 +102,7 @@ export function applyNewDot(dotText, graphData, sharedState) {
 async function main() {
   var params = new URLSearchParams(window.location.search);
   var dotParam = params.get("dot");
+  var rootParam = params.get("root");
 
   var spec;
   var dotText;
@@ -115,8 +116,9 @@ async function main() {
       showError("Failed to parse shared graph: " + err.message);
       return;
     }
-    // Clean up the URL bar — the graph is now loaded, no need for the long param
+    // Clean up the URL bar — the graph is now loaded, no need for the long params
     params.delete("dot");
+    params.delete("root");
     var cleanUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "");
     history.replaceState(null, "", cleanUrl);
   } else {
@@ -161,7 +163,14 @@ async function main() {
   var initialCollapsed = {};
   Object.keys(spec.groups).forEach(function (g) { initialCollapsed[g] = true; });
   var initialColorMap = assignGroupColors(spec.groups, spec.fixedColors);
-  SharedState.init(initialCollapsed, initialColorMap, 0, {});
+  var initialDag = 0;
+  if (rootParam !== null) {
+    var parsed = parseInt(rootParam, 10);
+    if (!isNaN(parsed) && parsed >= 0 && parsed < graphData.dags.length) {
+      initialDag = parsed;
+    }
+  }
+  SharedState.init(initialCollapsed, initialColorMap, initialDag, {});
 
   // -----------------------------------------------------------------------
   // Initialise renderers

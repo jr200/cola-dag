@@ -35,7 +35,7 @@ export function initControls(graphData, sharedState) {
   components.push(dotEditor);
 
   // --- Share ---
-  var sharePanel = createSharePanel();
+  var sharePanel = createSharePanel(sharedState);
   toolbar.appendChild(sharePanel.el);
   components.push(sharePanel);
   toolbar.appendChild(createSep());
