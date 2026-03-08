@@ -20,6 +20,15 @@ export default [
         setTimeout: "readonly",
         clearTimeout: "readonly",
         FileReader: "readonly",
+        navigator: "readonly",
+        history: "readonly",
+        btoa: "readonly",
+        atob: "readonly",
+        TextEncoder: "readonly",
+        TextDecoder: "readonly",
+        CompressionStream: "readonly",
+        DecompressionStream: "readonly",
+        Uint8Array: "readonly",
       },
     },
     rules: {
@@ -35,6 +44,7 @@ export default [
       globals: {
         // Node globals for the Vite plugin
         process: "readonly",
+        Buffer: "readonly",
       },
     },
   },

@@ -33,7 +33,7 @@ update:
 	npx npm-check-updates -u
 	npm install --package-lock-only
 
-bump:
+bump: lint
 	@echo "Usage: make bump v=patch|minor|major"
 	npm version $(v) --no-git-tag-version
 	npm install --package-lock-only
