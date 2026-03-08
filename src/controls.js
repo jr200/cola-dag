@@ -62,12 +62,19 @@ export function initControls(graphData, sharedState) {
   dotEditor.panelEl.insertAdjacentElement("afterend", sharePanel.panelEl);
   components.push(physicsPanel);
 
-  // --- Version badge ---
-  var version = document.createElement("a");
+  // --- Version badge (only links to API docs when the backend is running) ---
+  var version = document.createElement("span");
   version.id = "app-version";
-  version.href = "/api/docs";
-  version.target = "_blank";
   toolbar.appendChild(version);
+  fetch("/api/docs/openapi.json", { method: "HEAD" }).then(function (res) {
+    if (!res.ok) return;
+    var link = document.createElement("a");
+    link.id = "app-version";
+    link.href = "/api/docs";
+    link.target = "_blank";
+    link.textContent = version.textContent;
+    version.replaceWith(link);
+  }).catch(function () { /* no backend — stay as plain text */ });
 
   // --- Legend (bottom-right overlay) ---
   var legend = createLegend(graphData, sharedState);
